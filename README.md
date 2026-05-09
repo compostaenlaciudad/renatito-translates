@@ -1,4 +1,4 @@
-# GenZ Traductor 💀
+# Renatito Translates — GenZ Traductor 💀
 
 > Traduce español Gen Z a español normal y adulto. Powered by Claude AI.
 
