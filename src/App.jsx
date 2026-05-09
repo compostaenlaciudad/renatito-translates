@@ -8,12 +8,6 @@ const EXAMPLES = [
   "Ese wey es mid, ni fu ni fa, ngl 😐",
 ]
 
-const EMOJIS = ['💀', '✨', '🔥', '😤', '💅', '🫶', '🧢', '👀', '🫠']
-
-function randomEmoji() {
-  return EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
-}
-
 export default function App() {
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
@@ -22,6 +16,7 @@ export default function App() {
   const [copied, setCopied] = useState(false)
   const [charCount, setCharCount] = useState(0)
   const textareaRef = useRef(null)
+  const outputRef = useRef(null)
 
   const MAX_CHARS = 500
 
@@ -30,6 +25,10 @@ export default function App() {
     setLoading(true)
     setError('')
     setOutput('')
+
+    setTimeout(() => {
+      outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 300)
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -49,9 +48,7 @@ Reglas:
 - Responde SOLO con la traducción, sin explicaciones, sin comillas, sin prefijos como "Traducción:" 
 - Si el texto ya está en español normal, solo devuélvelo limpio
 - Elimina los emojis excesivos pero puedes dejar alguno relevante si es necesario`,
-          messages: [
-            { role: 'user', content: input }
-          ],
+          messages: [{ role: 'user', content: input }],
         }),
       })
 
@@ -80,6 +77,7 @@ Reglas:
     setInput(ex)
     setCharCount(ex.length)
     setOutput('')
+    setError('')
   }
 
   function copyOutput() {
@@ -98,420 +96,277 @@ Reglas:
   }
 
   return (
-    <div style={styles.page}>
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.headerInner}>
-          <div style={styles.badge}>BETA 💀</div>
-          <h1 style={styles.title}>GenZ<br />Traductor</h1>
-          <p style={styles.subtitle}>
-            De "no cap fr fr lowkey slay" a español de verdad
-          </p>
+    <div className="page">
+      <header className="header">
+        <div className="header-inner">
+          <div className="badge">BETA 💀</div>
+          <h1 className="title">GenZ<br />Traductor</h1>
+          <p className="subtitle">De "no cap fr fr lowkey slay"<br />a español de verdad</p>
         </div>
-        <div style={styles.ticker}>
-          <div style={styles.tickerInner}>
+        <div className="ticker">
+          <div className="ticker-inner">
             {[...EXAMPLES, ...EXAMPLES].map((ex, i) => (
-              <span key={i} style={styles.tickerItem}>{ex} &nbsp;&nbsp;—&nbsp;&nbsp;</span>
+              <span key={i} className="ticker-item">{ex} &nbsp;—&nbsp; </span>
             ))}
           </div>
         </div>
       </header>
 
-      {/* Main */}
-      <main style={styles.main}>
-        <div style={styles.grid}>
-          {/* Input panel */}
-          <div style={styles.panel}>
-            <div style={styles.panelHeader}>
-              <span style={{ ...styles.panelLabel, background: '#ffe135' }}>
-                GEN Z 🧢
-              </span>
-              <div style={styles.panelActions}>
-                <button style={styles.ghostBtn} onClick={loadExample}>
-                  ejemplo aleatorio
-                </button>
-                <button style={styles.ghostBtn} onClick={clear}>
-                  limpiar
-                </button>
-              </div>
-            </div>
-            <textarea
-              ref={textareaRef}
-              style={styles.textarea}
-              value={input}
-              onChange={handleInput}
-              placeholder={"Escribe aquí en Gen Z...\n\n\"No cap, esto está muy lowkey fire fr fr 💀\""}
-              spellCheck={false}
-            />
-            <div style={styles.panelFooter}>
-              <span style={{ fontSize: '12px', opacity: 0.5 }}>
-                {charCount}/{MAX_CHARS}
-              </span>
-              <button
-                style={{
-                  ...styles.translateBtn,
-                  opacity: loading || !input.trim() ? 0.5 : 1,
-                  cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
-                }}
-                onClick={translate}
-                disabled={loading || !input.trim()}
-              >
-                {loading ? 'traduciendo...' : 'TRADUCIR →'}
-              </button>
+      <main className="main">
+        <div className="panel">
+          <div className="panel-header">
+            <span className="panel-label label-yellow">GEN Z 🧢</span>
+            <div className="panel-actions">
+              <button className="ghost-btn" onClick={loadExample}>ejemplo</button>
+              <button className="ghost-btn" onClick={clear}>limpiar</button>
             </div>
           </div>
-
-          {/* Divider */}
-          <div style={styles.divider}>
-            <div style={styles.dividerLine} />
-            <div style={styles.dividerIcon}>
-              {loading ? '⏳' : '⚡'}
-            </div>
-            <div style={styles.dividerLine} />
-          </div>
-
-          {/* Output panel */}
-          <div style={styles.panel}>
-            <div style={styles.panelHeader}>
-              <span style={{ ...styles.panelLabel, background: '#00e676' }}>
-                ESPAÑOL NORMAL ✅
-              </span>
-              {output && (
-                <button style={styles.ghostBtn} onClick={copyOutput}>
-                  {copied ? '¡copiado! ✓' : 'copiar'}
-                </button>
-              )}
-            </div>
-            <div style={styles.outputBox}>
-              {error ? (
-                <p style={{ color: '#ff3c6f', fontFamily: 'Space Mono', fontSize: '14px' }}>
-                  {error}
-                </p>
-              ) : loading ? (
-                <div style={styles.loadingDots}>
-                  <span>.</span><span>.</span><span>.</span>
-                </div>
-              ) : output ? (
-                <p style={styles.outputText}>{output}</p>
-              ) : (
-                <p style={styles.placeholder}>
-                  La traducción aparecerá aquí...
-                </p>
-              )}
-            </div>
-            {output && (
-              <div style={styles.panelFooter}>
-                <span style={{ fontSize: '12px', opacity: 0.5 }}>
-                  {output.length} caracteres
-                </span>
-                <span style={{ fontSize: '12px', opacity: 0.5 }}>powered by Claude AI</span>
-              </div>
-            )}
+          <textarea
+            ref={textareaRef}
+            className="textarea"
+            value={input}
+            onChange={handleInput}
+            placeholder={"Escribe aquí en Gen Z...\n\n\"No cap, esto está muy lowkey fire fr fr 💀\""}
+            spellCheck={false}
+          />
+          <div className="panel-footer">
+            <span className="char-count">{charCount}/{MAX_CHARS}</span>
+            <button
+              className={`translate-btn${loading || !input.trim() ? ' disabled' : ''}`}
+              onClick={translate}
+              disabled={loading || !input.trim()}
+            >
+              {loading ? 'traduciendo...' : 'TRADUCIR →'}
+            </button>
           </div>
         </div>
 
-        {/* Dictionary strip */}
-        <div style={styles.dict}>
-          <p style={styles.dictTitle}>MINI DICCIONARIO GEN Z →</p>
-          <div style={styles.dictGrid}>
+        <div className="divider-row">
+          <div className="divider-line" />
+          <div className="divider-icon">{loading ? '⏳' : '⚡'}</div>
+          <div className="divider-line" />
+        </div>
+
+        <div className="panel" ref={outputRef}>
+          <div className="panel-header">
+            <span className="panel-label label-green">ESPAÑOL NORMAL ✅</span>
+            {output && (
+              <button className="ghost-btn" onClick={copyOutput}>
+                {copied ? '¡copiado! ✓' : 'copiar'}
+              </button>
+            )}
+          </div>
+          <div className="output-box">
+            {error ? (
+              <p className="error-text">{error}</p>
+            ) : loading ? (
+              <div className="loading-dots">
+                <span className="dot">.</span>
+                <span className="dot">.</span>
+                <span className="dot">.</span>
+              </div>
+            ) : output ? (
+              <p className="output-text">{output}</p>
+            ) : (
+              <p className="placeholder-text">La traducción aparecerá aquí...</p>
+            )}
+          </div>
+          {output && (
+            <div className="panel-footer">
+              <span className="char-count">{output.length} caracteres</span>
+              <span className="powered">powered by Claude AI</span>
+            </div>
+          )}
+        </div>
+
+        <div className="dict">
+          <p className="dict-title">MINI DICCIONARIO GEN Z →</p>
+          <div className="dict-grid">
             {[
-              ['no cap', 'en serio / sin mentira'],
-              ['lowkey', 'a secreta / un poco'],
+              ['no cap', 'en serio'],
+              ['lowkey', 'a escondidas / un poco'],
               ['slay', 'lo está rompiendo'],
-              ['fr fr', 'de verdad / en serio'],
-              ['mid', 'mediocre / del montón'],
+              ['fr fr', 'de verdad'],
+              ['mid', 'mediocre'],
               ['ick', 'algo que da asco'],
               ['red flag', 'señal de alarma'],
-              ['it\'s giving', 'tiene vibras de'],
-              ['periodt', 'punto final / y ya'],
+              ["it's giving", 'tiene vibras de'],
+              ['periodt', 'punto final'],
               ['ngl', 'siendo honesto/a'],
               ['bestie', 'mejor amig@'],
               ['vibe check', 'verificar el ambiente'],
             ].map(([genz, normal]) => (
-              <div key={genz} style={styles.dictItem}>
-                <span style={styles.dictGenz}>{genz}</span>
-                <span style={styles.dictArrow}>→</span>
-                <span style={styles.dictNormal}>{normal}</span>
+              <div key={genz} className="dict-item">
+                <span className="dict-genz">{genz}</span>
+                <span className="dict-arrow">→</span>
+                <span className="dict-normal">{normal}</span>
               </div>
             ))}
           </div>
         </div>
       </main>
 
-      <footer style={styles.footer}>
+      <footer className="footer">
         <p>Hecho con 💀 y Claude AI · No cap, te va a ayudar con tus abuel@s</p>
       </footer>
 
       <style>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          font-family: 'Space Mono', monospace;
+          background: #f5f0e8;
+          color: #0a0a0a;
+          -webkit-text-size-adjust: 100%;
+          min-height: 100vh;
+        }
+
+        .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { background: #0a0a0a; color: #f5f0e8; overflow: hidden; }
+        .header-inner { padding: 20px 16px 16px; }
+        .badge {
+          display: inline-block;
+          background: #ffe135; color: #0a0a0a;
+          font-weight: 700; font-size: 10px;
+          padding: 3px 8px; margin-bottom: 8px; letter-spacing: 2px;
+        }
+        .title {
+          font-family: 'Syne', sans-serif;
+          font-size: clamp(42px, 16vw, 96px);
+          font-weight: 800; line-height: 0.9;
+          color: #f5f0e8; letter-spacing: -2px; margin-bottom: 10px;
+        }
+        .subtitle { font-size: 12px; color: #ffe135; line-height: 1.6; }
+
+        .ticker { border-top: 2px solid #2a2a2a; padding: 9px 0; overflow: hidden; white-space: nowrap; }
+        .ticker-inner { display: inline-block; animation: ticker 25s linear infinite; }
+        .ticker-item { font-size: 11px; color: #555; }
         @keyframes ticker {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        @keyframes dots {
+
+        .main {
+          flex: 1; padding: 14px 14px 0;
+          display: flex; flex-direction: column;
+          max-width: 800px; margin: 0 auto; width: 100%;
+        }
+
+        .panel { background: #fff; border: 3px solid #0a0a0a; display: flex; flex-direction: column; }
+
+        .panel-header {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 10px 12px; border-bottom: 3px solid #0a0a0a;
+          background: #fafafa; gap: 8px; flex-wrap: wrap;
+        }
+        .panel-label {
+          font-weight: 700; font-size: 10px; letter-spacing: 1.5px;
+          padding: 4px 8px; border: 2px solid #0a0a0a;
+        }
+        .label-yellow { background: #ffe135; }
+        .label-green { background: #00e676; }
+
+        .panel-actions { display: flex; gap: 6px; }
+        .ghost-btn {
+          font-family: 'Space Mono', monospace; font-size: 11px;
+          background: transparent; border: 1.5px solid #ccc;
+          padding: 8px 12px; cursor: pointer; color: #555;
+          min-height: 38px; -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        .ghost-btn:active { background: #efefef; }
+
+        .textarea {
+          border: none; outline: none; padding: 14px;
+          font-family: 'Space Mono', monospace;
+          font-size: 16px; /* prevents iOS zoom */
+          line-height: 1.7; resize: none;
+          background: transparent; color: #0a0a0a;
+          min-height: 150px; width: 100%;
+        }
+
+        .panel-footer {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 10px 12px; border-top: 2px solid #eee; background: #fafafa; gap: 8px;
+        }
+        .char-count { font-size: 11px; opacity: 0.5; flex-shrink: 0; }
+        .powered { font-size: 11px; opacity: 0.4; }
+
+        .translate-btn {
+          font-family: 'Syne', sans-serif; font-weight: 800;
+          font-size: 13px; letter-spacing: 1px;
+          background: #0a0a0a; color: #ffe135;
+          border: 2px solid #0a0a0a; padding: 12px 18px;
+          cursor: pointer; box-shadow: 3px 3px 0 #ffe135;
+          min-height: 44px; white-space: nowrap;
+          -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+        }
+        .translate-btn.disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .translate-btn:not(.disabled):active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #ffe135; }
+
+        .divider-row {
+          display: flex; align-items: center;
+          padding: 0 16px; height: 44px;
+        }
+        .divider-line { flex: 1; height: 3px; background: #0a0a0a; }
+        .divider-icon {
+          width: 38px; height: 38px;
+          background: #ffe135; border: 3px solid #0a0a0a;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 17px; flex-shrink: 0;
+        }
+
+        .output-box {
+          flex: 1; padding: 14px; min-height: 100px;
+          display: flex; align-items: flex-start;
+        }
+        .output-text { font-size: 15px; line-height: 1.7; }
+        .placeholder-text { font-size: 14px; color: #bbb; font-style: italic; }
+        .error-text { font-size: 14px; color: #ff3c6f; }
+        .loading-dots { font-size: 30px; display: flex; gap: 2px; }
+        .dot:nth-child(1) { animation: blink 1.4s infinite 0s; }
+        .dot:nth-child(2) { animation: blink 1.4s infinite 0.2s; }
+        .dot:nth-child(3) { animation: blink 1.4s infinite 0.4s; }
+        @keyframes blink {
           0%, 20% { opacity: 0; }
           50% { opacity: 1; }
           100% { opacity: 0; }
         }
-        .dot1 { animation: dots 1.4s infinite 0s; }
-        .dot2 { animation: dots 1.4s infinite 0.2s; }
-        .dot3 { animation: dots 1.4s infinite 0.4s; }
+
+        .dict {
+          margin-top: 16px; margin-bottom: 16px;
+          border: 3px solid #0a0a0a; box-shadow: 5px 5px 0 #0a0a0a;
+          background: #fff; padding: 16px;
+        }
+        .dict-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 2px; margin-bottom: 12px; }
+        .dict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+        .dict-item {
+          display: flex; align-items: center; gap: 5px;
+          padding: 7px 9px; border: 1.5px solid #e0e0e0; background: #fafafa; min-width: 0;
+        }
+        .dict-genz { font-weight: 700; font-size: 11px; color: #1a1aff; flex-shrink: 0; }
+        .dict-arrow { font-size: 11px; color: #999; flex-shrink: 0; }
+        .dict-normal { font-size: 10px; color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .footer {
+          border-top: 3px solid #0a0a0a; padding: 14px 16px;
+          background: #0a0a0a; color: #555; font-size: 11px; text-align: center;
+        }
+
+        @media (min-width: 600px) {
+          .header-inner { padding: 32px 36px 24px; }
+          .subtitle { font-size: 14px; }
+          .main { padding: 28px 36px 0; }
+          .textarea { font-size: 14px; min-height: 200px; }
+          .panel-header { padding: 10px 16px; }
+          .panel-footer { padding: 10px 16px; }
+          .ghost-btn { padding: 5px 12px; min-height: auto; }
+          .dict { box-shadow: 8px 8px 0 #0a0a0a; padding: 20px; margin-top: 24px; margin-bottom: 24px; }
+          .dict-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+          .dict-normal { white-space: normal; overflow: visible; text-overflow: unset; }
+        }
       `}</style>
     </div>
   )
-}
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    background: '#f5f0e8',
-  },
-  header: {
-    borderBottom: '3px solid #0a0a0a',
-    background: '#0a0a0a',
-    color: '#f5f0e8',
-    overflow: 'hidden',
-  },
-  headerInner: {
-    padding: '40px 40px 30px',
-    position: 'relative',
-  },
-  badge: {
-    display: 'inline-block',
-    background: '#ffe135',
-    color: '#0a0a0a',
-    fontFamily: 'Space Mono, monospace',
-    fontWeight: '700',
-    fontSize: '11px',
-    padding: '4px 10px',
-    border: '2px solid #ffe135',
-    marginBottom: '12px',
-    letterSpacing: '2px',
-  },
-  title: {
-    fontFamily: 'Syne, sans-serif',
-    fontSize: 'clamp(52px, 10vw, 96px)',
-    fontWeight: '800',
-    lineHeight: '0.9',
-    color: '#f5f0e8',
-    letterSpacing: '-2px',
-    marginBottom: '16px',
-  },
-  subtitle: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '14px',
-    color: '#ffe135',
-    opacity: 0.9,
-  },
-  ticker: {
-    borderTop: '2px solid #2a2a2a',
-    padding: '12px 0',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-  },
-  tickerInner: {
-    display: 'inline-block',
-    animation: 'ticker 30s linear infinite',
-  },
-  tickerItem: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '12px',
-    color: '#666',
-    paddingRight: '8px',
-  },
-  main: {
-    flex: 1,
-    padding: '40px',
-    maxWidth: '1200px',
-    margin: '0 auto',
-    width: '100%',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr auto 1fr',
-    gap: '0',
-    border: '3px solid #0a0a0a',
-    boxShadow: '8px 8px 0px #0a0a0a',
-    background: '#fff',
-    marginBottom: '40px',
-  },
-  panel: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '360px',
-  },
-  panelHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '12px 16px',
-    borderBottom: '3px solid #0a0a0a',
-    background: '#fafafa',
-    gap: '8px',
-    flexWrap: 'wrap',
-  },
-  panelLabel: {
-    fontFamily: 'Space Mono, monospace',
-    fontWeight: '700',
-    fontSize: '11px',
-    letterSpacing: '1.5px',
-    padding: '4px 10px',
-    border: '2px solid #0a0a0a',
-  },
-  panelActions: {
-    display: 'flex',
-    gap: '8px',
-    flexWrap: 'wrap',
-  },
-  ghostBtn: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '11px',
-    background: 'transparent',
-    border: '1.5px solid #ccc',
-    padding: '4px 10px',
-    cursor: 'pointer',
-    color: '#555',
-    transition: 'all 0.15s',
-  },
-  textarea: {
-    flex: 1,
-    border: 'none',
-    outline: 'none',
-    padding: '20px',
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '14px',
-    lineHeight: '1.7',
-    resize: 'none',
-    background: 'transparent',
-    color: '#0a0a0a',
-    minHeight: '260px',
-  },
-  panelFooter: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '12px 16px',
-    borderTop: '2px solid #eee',
-    background: '#fafafa',
-  },
-  translateBtn: {
-    fontFamily: 'Syne, sans-serif',
-    fontWeight: '800',
-    fontSize: '13px',
-    letterSpacing: '1px',
-    background: '#0a0a0a',
-    color: '#ffe135',
-    border: '2px solid #0a0a0a',
-    padding: '10px 20px',
-    cursor: 'pointer',
-    transition: 'all 0.15s',
-    boxShadow: '3px 3px 0 #ffe135',
-  },
-  divider: {
-    width: '3px',
-    background: '#0a0a0a',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  dividerLine: {
-    flex: 1,
-    width: '100%',
-    background: '#0a0a0a',
-  },
-  dividerIcon: {
-    width: '36px',
-    height: '36px',
-    background: '#ffe135',
-    border: '3px solid #0a0a0a',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '16px',
-    flexShrink: 0,
-    margin: '8px -16.5px',
-    zIndex: 1,
-  },
-  outputBox: {
-    flex: 1,
-    padding: '20px',
-    minHeight: '260px',
-    display: 'flex',
-    alignItems: 'flex-start',
-  },
-  outputText: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '14px',
-    lineHeight: '1.7',
-    color: '#0a0a0a',
-  },
-  placeholder: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '14px',
-    color: '#bbb',
-    fontStyle: 'italic',
-  },
-  loadingDots: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '28px',
-    color: '#0a0a0a',
-    display: 'flex',
-    gap: '4px',
-  },
-  dict: {
-    border: '3px solid #0a0a0a',
-    boxShadow: '8px 8px 0px #0a0a0a',
-    background: '#fff',
-    padding: '24px',
-  },
-  dictTitle: {
-    fontFamily: 'Syne, sans-serif',
-    fontWeight: '800',
-    fontSize: '13px',
-    letterSpacing: '2px',
-    marginBottom: '20px',
-    color: '#0a0a0a',
-  },
-  dictGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-    gap: '10px',
-  },
-  dictItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    border: '1.5px solid #e0e0e0',
-    background: '#fafafa',
-  },
-  dictGenz: {
-    fontFamily: 'Space Mono, monospace',
-    fontWeight: '700',
-    fontSize: '12px',
-    color: '#1a1aff',
-    flexShrink: 0,
-  },
-  dictArrow: {
-    fontSize: '12px',
-    color: '#999',
-    flexShrink: 0,
-  },
-  dictNormal: {
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '11px',
-    color: '#555',
-  },
-  footer: {
-    borderTop: '3px solid #0a0a0a',
-    padding: '16px 40px',
-    background: '#0a0a0a',
-    color: '#555',
-    fontFamily: 'Space Mono, monospace',
-    fontSize: '12px',
-    textAlign: 'center',
-  },
 }
