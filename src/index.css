@@ -1,0 +1,47 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --black: #0a0a0a;
+  --white: #f5f0e8;
+  --yellow: #ffe135;
+  --pink: #ff3c6f;
+  --blue: #1a1aff;
+  --green: #00e676;
+  --border: 3px solid var(--black);
+  --shadow: 5px 5px 0px var(--black);
+  --shadow-lg: 8px 8px 0px var(--black);
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Space Mono', monospace;
+  background-color: var(--white);
+  color: var(--black);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--white);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--black);
+}
