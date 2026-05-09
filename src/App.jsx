@@ -100,7 +100,7 @@ Reglas:
       <header className="header">
         <div className="header-inner">
           <div className="badge">BETA 💀</div>
-          <h1 className="title">GenZ<br />Traductor</h1>
+          <h1 className="title">Renatito<br />Translates</h1>
           <p className="subtitle">De "no cap fr fr lowkey slay"<br />a español de verdad</p>
         </div>
         <div className="ticker">
