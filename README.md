@@ -31,8 +31,8 @@
 ### 1. Clona el repo
 
 ```bash
-git clone https://github.com/tu-usuario/genz-traductor.git
-cd genz-traductor
+git clone https://github.com/tu-usuario/renatito-translates.git
+cd renatito-translates
 ```
 
 ### 2. Instala dependencias
